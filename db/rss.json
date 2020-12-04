@@ -1,10 +1,111 @@
 {
-    "Twitter-Ice_Hazymoon": {
-        "url": "/twitter/user/Ice_Hazymoon",
+    "最终幻想14官方": {
+        "url": "/bilibili/user/dynamic/6655514",
         "group": [
-            1234567890
+            329880251
         ],
         "translate": false,
-        "proxy": true
+        "proxy": false
+    },
+    "公主连结ReDive": {
+        "url": "/bilibili/user/dynamic/353840826",
+        "group": [
+            1041024975,
+            329880251
+        ],
+        "translate": false,
+        "proxy": false
+    },
+    "原神": {
+        "url": "/bilibili/user/dynamic/401742377",
+        "group": [
+            883919223,
+            1041024975,
+            621628123,
+            741777325,
+            642329545,
+            329880251
+        ],
+        "translate": false,
+        "proxy": false
+    },
+    "崩坏3第一偶像爱酱": {
+        "url": "/bilibili/user/dynamic/27534330",
+        "group": [
+            883919223,
+            621628123,
+            741777325,
+            642329545
+        ],
+        "translate": false,
+        "proxy": false
+    },
+    "崩坏3": {
+        "url": "/bilibili/user/dynamic/256667467",
+        "group": [
+            883919223,
+            621628123,
+            741777325,
+            642329545
+        ],
+        "translate": false,
+        "proxy": false
+    },
+    "赫箩的苹果": {
+        "url": "/bilibili/user/dynamic/653768",
+        "group": [
+            741777325,
+            642329545
+        ],
+        "translate": false,
+        "proxy": false
+    },
+    "老沐ocean": {
+        "url": "/bilibili/user/dynamic/23730666",
+        "group": [
+            883919223        
+        ],
+        "translate": false,
+        "proxy": false
+    },
+    "赫箩的苹果直播": {
+        "url": "/bilibili/live/room/823947",
+        "group": [
+            741777325
+        ],
+        "translate": false,
+        "proxy": false
+    },
+    "老沐ocean直播": {
+        "url": "/bilibili/live/room/3378640",
+        "group": [
+            883919223            
+        ],
+        "translate": false,
+        "proxy": false
+    },
+    "野原小牛丶": {
+        "url": "/bilibili/user/dynamic/3008692",
+        "group": [            
+            329880251
+        ],
+        "translate": false,
+        "proxy": false
+    },
+    "乐爷Official": {
+        "url": "/bilibili/user/dynamic/49458759",
+        "group": [            
+            1041024975
+        ],
+        "translate": false,
+        "proxy": false
+    },
+    "黑潮之上": {
+        "url": "/bilibili/user/dynamic/415964517",
+        "group": [            
+            885095197
+        ],
+        "translate": false,
+        "proxy": false
     }
 }

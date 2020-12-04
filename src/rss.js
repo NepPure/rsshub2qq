@@ -20,7 +20,7 @@ const logger = require('./logger');
 function sub(config, send) {
     rp.get(`${rsshub}${config.url}`, {
         qs: {
-            limit: 5
+            limit: 2
         },
         transform: async function (body, response, resolveWithFullResponse) {
             if (response.headers['content-type'] === 'application/xml; charset=utf-8') {
@@ -42,7 +42,7 @@ function sub(config, send) {
         let items = _.chain(feed.items).differenceBy(oldFeed, 'guid').filter(function (o) {
             let title = o.title;
             // 过滤转发和回复推文
-            let flag = title.search('Re') !== -1 || title.search('转发了') !== -1;
+            let flag = title.search('中奖') !== -1;
             return !flag;
         }).value();
 
@@ -63,7 +63,7 @@ function sub(config, send) {
 
             const $ = cheerio.load(content.replace(/<br\/?>/g, '\n'));
             const videoLength = $('video').length;
-            const text = $.text().trim();
+            let text = $.text().trim();
             // 获取媒体资源
             if ($('img').length || $('video').length) {
                 let imgs = new Array();
@@ -97,29 +97,63 @@ function sub(config, send) {
                 return `[CQ:image,file=file:///${imgPath}]`
             })
 
-            const message = `【${feed.title}】更新了！\n` +
-                '----------------------\n' +
-                (config.title ? `标题：${item.title}\n` : '') +
-                `内容：${videoLength ? `${text}\n ${videoLength} 个视频，点击原链接查看` : text}\n` +
-                `${config.translate ? `翻译：${(await translate(text))}\n` : ''}` +
-                `${cqimgpath.length ? `媒体：\n${cqimgpath.join('')}\n` : ''}` +
-                '----------------------\n' +
-                `原链接：${item.link}\n` +
-                `日期：${dayjs(item.pubDate).format('M月D日HH:mm:ss')}`;
+            let cuttext = false;
 
-            Promise.all(config.group.map(group_id => send(message, group_id))).then(() => {
-                logger.info('rss：发送成功 ==> ' + item.link);
-                images.forEach(path => {
-                    del(path).catch(logger.error);
-                })
-            }).catch(err => {
-                logger.error(`rss：发送失败 ==> ${item.link} ==> ${err.message || JSON.stringify(err)}`);
-                images.forEach(path => {
-                    del(path).catch(logger.error);
-                })
-            });
+            // 正文太长截取
+            if (text.length > 100) {
+                text = text.substring(0, 100) + `...\n(全文：${item.link})`;
+                cuttext = true;
+            }
+
+            for (let index = 0; index < config.group.length; index++) {
+                const groupid = config.group[index];
+                const message = `【${feed.title}】 ${dayjs(item.pubDate).format('YYYY-MM-DD HH:mm')}\n` +
+                    (config.title ? `标题：${item.title}\n` : '') +
+                    `${videoLength ? `${text}\n ${videoLength} 个视频，点击原链接查看` : text}\n` +
+                    // `${config.translate ? `翻译：${(await translate(text))}\n` : ''}` +
+                    // `${cqimgpath.length ? `${cqimgpath.join('')}\n` : ''}` +
+                    `${cqimgpath.length ? `${cqimgpath[0]}\n` : ''}` +
+                    `${cuttext ? '' : '----------------------\n' + item.link}` +
+                    `------世界线变动率: ${parseFloat(Math.random()).toFixed(10)}------`;
+
+                await send(message, groupid).then(() => {
+                    logger.info(`rss：发送成功 ==>[${groupid}] ${item.link}`);
+                }).catch(err => {
+                    logger.error(`rss：发送失败 ==>[${groupid}] ${item.link} ==> ${err.message || JSON.stringify(err)}`);
+                });
+
+                await sleep(3000);
+            }
+
+            images.forEach(path => {
+                del(path).catch(logger.error);
+            })
+
+            // const message = `【${feed.title}】 ${dayjs(item.pubDate).format('YYYY-MM-DD HH:mm')}\n` +
+            //     (config.title ? `标题：${item.title}\n` : '') +
+            //     `${videoLength ? `${text}\n ${videoLength} 个视频，点击原链接查看` : text}\n` +
+            //     `${config.translate ? `翻译：${(await translate(text))}\n` : ''}` +
+            //     // `${cqimgpath.length ? `${cqimgpath.join('')}\n` : ''}` +
+            //     `${cqimgpath.length ? `${cqimgpath[0]}\n` : ''}` +
+            //     `${cuttext ? '' : '----------------------\n' + item.link}`;
+
+            // Promise.all(config.group.map(group_id => send(message, group_id))).then(() => {
+            //     logger.info('rss：发送成功 ==> ' + item.link);
+            //     images.forEach(path => {
+            //         del(path).catch(logger.error);
+            //     })
+            // }).catch(err => {
+            //     logger.error(`rss：发送失败 ==> ${item.link} ==> ${err.message || JSON.stringify(err)}`);
+            //     images.forEach(path => {
+            //         del(path).catch(logger.error);
+            //     })
+            // });
         });
     }).catch(err => logger.error(`rss：请求RSSHUB失败 ==> ${config.name} ==> ${err.message || JSON.stringify(err)}`))
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 module.exports = function (send) {
@@ -134,5 +168,5 @@ module.exports = function (send) {
         })
     }
     start();
-    setInterval(start, 1000 * 60 * 5);
+    setInterval(start, 1000 * 60 * 10);
 }

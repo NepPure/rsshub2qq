@@ -72,3 +72,7 @@ test.js
 credentials.js
 tmp
 rss_log.txt
+db/db.json
+db/rss.json
+RSSHUB2QQ.bat
+db/群号.txt
