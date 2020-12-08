@@ -63,7 +63,7 @@ function sub(config, send) {
 
             const $ = cheerio.load(content.replace(/<br\/?>/g, '\n'));
             const videoLength = $('video').length;
-            let text = $.text().trim();
+            let text = item.contentSnippet;
             // 获取媒体资源
             if ($('img').length || $('video').length) {
                 let imgs = new Array();
@@ -71,10 +71,12 @@ function sub(config, send) {
                     const src = $(this).attr('src');
                     if (src) imgs.push(src);
                 })
-                $('video').each(function () {
-                    const src = $(this).attr('poster');
-                    if (src) imgs.push(src);
-                })
+                if (imgs.length > 0)
+                    imgs = [imgs[imgs.length - 1]]
+                // $('video').each(function () {
+                //     const src = $(this).attr('poster');
+                //     if (src) imgs.push(src);
+                // })
 
                 try {
                     let fileDataArr = await Promise.all(imgs.map(e => {
@@ -100,21 +102,24 @@ function sub(config, send) {
             let cuttext = false;
 
             // 正文太长截取
-            if (text.length > 100) {
-                text = text.substring(0, 100) + `...\n(全文：${item.link})`;
+            if (text.length > 60) {
+                text = text.substring(0, 60) + `...`;
                 cuttext = true;
             }
 
             for (let index = 0; index < config.group.length; index++) {
                 const groupid = config.group[index];
-                const message = `【${feed.title}】 ${dayjs(item.pubDate).format('YYYY-MM-DD HH:mm')}\n` +
-                    (config.title ? `标题：${item.title}\n` : '') +
-                    `${videoLength ? `${text}\n ${videoLength} 个视频，点击原链接查看` : text}\n` +
+                const message = `【${feed.title}】 更新了！\n` +
+                    // `${item.title}\n` +
+                    // `${videoLength ? `${text}\n ${videoLength} 个视频，点击原链接查看` : text}\n` +
                     // `${config.translate ? `翻译：${(await translate(text))}\n` : ''}` +
                     // `${cqimgpath.length ? `${cqimgpath.join('')}\n` : ''}` +
+                    `${text}\n` +
                     `${cqimgpath.length ? `${cqimgpath[0]}\n` : ''}` +
-                    `${cuttext ? '' : '----------------------\n' + item.link}` +
-                    `------世界线变动率: ${parseFloat(Math.random()).toFixed(10)}------`;
+                    `------世界线: ${parseFloat(Math.random()).toFixed(6)}------\n` +
+                    // `${cuttext ? '' : item.link}\n` +
+                    `${item.link}\n` +
+                    `------${dayjs(item.pubDate).format('YYYY-MM-DD HH:mm')}------`;
 
                 await send(message, groupid).then(() => {
                     logger.info(`rss：发送成功 ==>[${groupid}] ${item.link}`);
